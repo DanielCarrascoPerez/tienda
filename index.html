@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <!-- Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <!-- Axios, para leer el fichero JSON -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Simulación tienda ebuyer - Daniel Carrasco Pérez</title>
+  </head>
+  <body>
+    <div class="container mt-4" id="app">
+      <!-- Esto simula la barra de navegación que tienen la mayoría de páginas web. He añadido el logo de la página que estoy simulando y la he 
+           enlazado a ella también. Aquí se pueden poner links, desplegables y otras utilidades para la navegación de la web.
+           La búsqueda está obviamente desactivada, pero siempre es una muy buena utilidad para buscar en la página web. -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="https://www.ebuyer.com/"><img src="./Images/logo.png" height="30" alt="logo"></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="https://www.ebuyer.com/">Home</a>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Search disabled..." aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <h3>{{titulo}}</h3>
+      <p>Seleccione los componentes que desea comprar:</p>
+      <div class="row row-cols-2 align-items-start">
+        <div class="col">
+          <div class="row">
+            <div class="col">
+                <!-- Campos de selección de componentes. Si se deja el ratón sobre los items, se muestra un popover con la descripción.
+                     Al darle añadir, se crea un campo en la tabla de abajo donde se muestra el nombre de producto, su precio, la cantidad 
+                     a pedir, la cantidad que hay en stock y el total de ese producto.
+                     Junto a cantidad, se crean dos botones para aumentar o disminuir la cantidad del producto en el pedido. Esto actualiza automáticamente
+                     el total de ese producto.
+                     Por otro lado, el subtotal se actualiza automáticamente cada vez que de añade un producto y/o se aumenta/disminuye la cantidad del mismo. -->
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect01">Procesadores</label>
+                  <select v-model="selCPU" class="form-select" id="cpu" >
+                    <option v-for="(item, index) in items" v-if="item.categoria === 'Procesador'" :value="item.nombre" data-bs-container="#tooltip_container" data-bs-toggle="tooltip" data-bs-placement="right" v-bind:title="[item.description]" >{{item.nombre}} - £{{item.precio}}</option>
+                  </select>
+                  <button class="btn btn-secondary" @click="agregarItem(1)">+</button>
+                </div>
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect01">Placa base</label>
+                  <select v-model="selBoard" class="form-select" id="board">
+                    <option v-for="(item, index) in items" v-if="item.categoria === 'Placa base'" :value="item.nombre" data-bs-container="#tooltip_container" data-bs-toggle="tooltip" data-bs-placement="right" v-bind:title="[item.description]">{{item.nombre}} - £{{item.precio}}</option>
+                  </select>
+                  <button class="btn btn-secondary" @click="agregarItem(2)">+</button>
+                </div>
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect01">Tarjeta gráfica</label>
+                  <select v-model="selGPU" class="form-select" id="gpu">
+                    <option v-for="(item, index) in items" v-if="item.categoria === 'Tarjeta gráfica'" :value="item.nombre" data-bs-container="#tooltip_container" data-bs-toggle="tooltip" data-bs-placement="right" v-bind:title="[item.description]">{{item.nombre}} - £{{item.precio}}</option>
+                  </select>
+                  <button class="btn btn-secondary" @click="agregarItem(3)">+</button>
+                </div>
+                <div class="input-group mb-3">
+                  <label class="input-group-text" for="inputGroupSelect01">Memoria RAM</label>
+                  <select v-model="selRAM" class="form-select" id="mem">
+                    <option v-for="(item, index) in items" v-if="item.categoria === 'Memoria RAM'" :value="item.nombre" data-bs-container="#tooltip_container" data-bs-toggle="tooltip" data-bs-placement="right" v-bind:title="[item.description]">{{item.nombre}} - £{{item.precio}}</option>
+                  </select>
+                  <button class="btn btn-secondary" @click="agregarItem(4)">+</button>
+                </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <!-- Aquí esta la cesta de la compra, donde se muestran los productos añadidos, se modifican las cantidades y se muestra el total. 
+                     No he tenido tiempo de limitar cantidad al máximo de stock o a elimiar el producto cuando se pone cantidad=0. Pero es algo que no creo tome mucho tiempo. -->
+                <h4>Cesta de compra:</h4>
+                <table class="table">
+                  <thead>
+                    <tr class="d-flex">
+                      <th class="col-3 text-center">Producto</th>
+                      <th class="col-3 text-center">Precio</th>
+                      <th class="col-3 text-center">Cantidad</th>
+                      <th class="col-3 text-center">En stock</th>
+                      <th class="col-3 text-center">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody v-for="(order, index) of orders">
+                    <tr class="d-flex">
+                      <td class="col-3 text-center">{{order.nombre}}</th>
+                      <td class="col-3 text-center">{{order.precio}}</td>
+                      <td class="col-3 text-center" id="{{index}}">{{order.cantidad}}
+                        <button class="btn btn-success btn-sm" @click="order.cantidad += 1;order.stock -=1">+</button>
+                        <button class="btn btn-danger btn-sm" @click="order.cantidad -=1;order.stock += 1">-</button>
+                      </td>
+                      <td class="col-3 text-center" id="stock+{{index}}">{{order.stock}}</td>
+                      <td class="col-3 text-center" id="total">{{order.precio*order.cantidad}}</td>
+                    </tr>
+                  </tbody>
+                </table>                 
+                <div class="row">
+                  <div class="col-6 text-lg-start">
+                    <span>Subtotal: £{{sumarTotal}}</span>
+                  </div>
+                  <!-- Aquí se muestra el total a pagar, incluyendo los gastos de envío. Al hacer click en el botón se muestra una alerta diciendo que la compra se ha realizado.
+                       Esto en una web normal, te llevaría al método de pago, luego confirmar compra, etc. Pero la actividad se ceñía a una página sólamente. -->
+                  <div class="col-6 text-lg-end">
+                    <button class="btn btn-success btn-sm" @click="warn">Confirmar compra</button><span>Total: £{{calcularSubtotal}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-5">
+          <!-- Esta sección nos ofrece dos tipos de envío. Cuando se selecciona uno, se actualiza el total del pedido. Si se selecciona el otro método de envío, se actualiza también. -->
+          <table class="table">
+            <thead>
+              <tr class="d-flex">
+                <th class="col-12 text-center">Delivery Options</th>
+              </tr>
+            </thead>
+          </table>
+          <div class="form-check ">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="eco" @click="{{envio=5}}">
+            <label class="form-check-label" for="eco">
+              Envío económico £5
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="fast"  @click="{{envio=10}}">
+            <label class="form-check-label" for="fast">
+              Envío rápido £10
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VueJS -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="tienda.js"></script>
+  </body>
+</html>
