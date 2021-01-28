@@ -68,37 +68,13 @@ const app = new Vue({
                     }
                     break; 
             }
-            //console.log(this.orders.nombre);
-            //localStorage.setItem('tienda-vue', JSON.stringify(this.items));
         },
         warn: function (message, event) {
-            // now we have access to the native event
             alert('Compra realizada!')
-        },
-        editarItem: function(index){
-            //this.items[index].estado = true;
-            //localStorage.setItem('tienda-vue', JSON.stringify(this.items));
         },
         eliminarItem: function(index){
             this.orders.splice(index, 1);
-            //localStorage.setItem('tienda-vue', JSON.stringify(this.items));
         }
-    },
-    created: function(){
-        // let datosDB = JSON.parse(localStorage.getItem('tienda-vue'));
-        // //Cargamos los datos
-        // if(datosDB === null){
-        //     localStorage.setItem('tienda-vue', JSON.stringify(this.items));
-        // }else{
-        //     this.tareas = datosDB;
-        // }
-        //let datosDB = JSON.parse(localStorage.getItem('gym-vue'));
-        // console.log(datosDB);
-        //if(datosDB === null){
-        //    this.tareas = [];
-        //}else{
-        //    this.tareas = datosDB;
-        //}
     },
     computed: {
         sumarTotal(){
