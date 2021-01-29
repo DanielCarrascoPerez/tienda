@@ -43,7 +43,8 @@ const app = new Vue({
             this.moneda = z;
         }
     },
-    // Esta función puede ser exportada y llamada con una variable para poder pasarle la dirección del fichero .json en caso de ser necesario.
+    // Esta función puede ser exportada y llamada con una variable para poder pasarle la dirección del fichero .json en caso de ser necesario, 
+    // dándole un nombre y sacándola de la sección mounted.
     // La función abre el fichero .json y almacena los datos en una variable genérica llamada datos.
     // Devuelve un error en caso de no poder leer los datos.
     // Esta función no recibe ni devuelve parámetros en esta versión.
